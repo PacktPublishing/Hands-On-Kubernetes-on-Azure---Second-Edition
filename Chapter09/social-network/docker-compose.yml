@@ -1,0 +1,125 @@
+version: "3.3"
+
+services:
+
+  discovery-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      PROMETHEUS_URL: "prometheus-pushgateway:9091"
+    image: hyperskale/discovery-service:0.0.1-SNAPSHOT
+    ports:
+      - "8761:8761/tcp"
+    deploy:
+      replicas: 1
+
+  edge-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      PROMETHEUS_URL: "prometheus-pushgateway:9091"
+    image: hyperskale/edge-service:0.0.1-SNAPSHOT
+    ports:
+      - "9000:9000/tcp"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '1000mb'
+        reservations:
+          cpus: '0.1'
+          memory: '250mb'
+
+  friend-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      PROMETHEUS_URL: "prometheus-pushgateway:9091"
+    image: hyperskale/friend-service:0.0.2-SNAPSHOT
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '1000mb'
+        reservations:
+          cpus: '0.1'
+          memory: '250mb'
+
+  user-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      PROMETHEUS_URL: "prometheus-pushgateway:9091"
+    image: hyperskale/user-service:0.0.2-SNAPSHOT
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: '1000mb'
+          cpus: '0.5'
+        reservations:
+          cpus: '0.1'
+          memory: '250mb'
+
+  recommendation-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      PROMETHEUS_URL: "prometheus-pushgateway:9091"
+    image: hyperskale/recommendation-service:0.0.1-SNAPSHOT
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '1000mb'
+        reservations:
+          cpus: '0.1'
+          memory: '250mb'
+
+  kafka:
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - "29092:29092/tcp"
+    deploy:
+      replicas: 1
+
+  zookeeper:
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "32181:32181/tcp"
+    deploy:
+      replicas: 1
+
+  friend-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - "5432/tcp"
+    deploy:
+      replicas: 1
+
+  user-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - "5432/tcp"
+    deploy:
+      replicas: 1
+
+  neo4j:
+    environment:
+      NEO4J_AUTH: none
+    image: neo4j:3.5.0
+    ports:
+      - "7474:7474/tcp"
+      - "7687:7687/tcp"
+    deploy:
+      replicas: 1

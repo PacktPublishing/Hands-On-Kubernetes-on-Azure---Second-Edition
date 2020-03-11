@@ -1,0 +1,121 @@
+spring:
+  profiles:
+    active: development
+  cloud:
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+      - id: friend-service
+        uri: lb://friend-service
+        predicates:
+        - name: Path
+          args:
+            pattern: "/friend/**"
+        filters:
+        - name: RewritePath
+          args:
+            regexp: "/friend/(?<remaining>.*)"
+            replacement: "/${remaining}"
+      - id: user-service
+        uri: lb://user-service
+        predicates:
+        - name: Path
+          args:
+            pattern: "/user/**"
+        filters:
+        - name: RewritePath
+          args:
+            regexp: "/user/(?<remaining>.*)"
+            replacement: "/${remaining}"
+      - id: recommendation-service
+        uri: lb://recommendation-service
+        predicates:
+        - name: Path
+          args:
+            pattern: "/recommendation/**"
+        filters:
+        - name: RewritePath
+          args:
+            regexp: "/recommendation/(?<remaining>.*)"
+            replacement: "/${remaining}"
+server:
+  port: 9000
+management:
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    enabled-by-default: true
+logging:
+  level:
+    root: INFO
+    kafka.*: WARN
+    org.springframework.*: INFO
+    org.neo4j.*: INFO
+    com.memorynotfound: DEBUG
+    org.apache.kafka.*: ERROR
+---
+spring:
+  profiles: development
+  cloud:
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+---
+spring:
+  profiles: docker
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://discovery-service:8761/eureka/
+---
+spring:
+  profiles: kubernetes
+  cloud:
+    kubernetes:
+      enabled: true
+      discovery:
+        enabled: true
+      ribbon:
+        enabled: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          url-expression: "'http://'+serviceId"
+kubernetes.trust.certificates: true
+# disable eureka
+ribbon.eureka.enabled: false
+eureka.client.enabled: false
+prometheus.push.enabled: false
+---
+spring:
+  profiles: test
+  cloud:
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+eureka:
+  client:
+    enabled: false
+prometheus.enabled: false

@@ -1,0 +1,112 @@
+nameOverride: social-network
+fullNameOverride: social-network
+
+kafka:
+  enabled: true
+  nameOverride: kafka
+  fullnameOverride: kafka
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      memory: 325Mi
+
+
+friend-service:
+  fullnameOverride: friend-service
+  kafka:
+    enabled: true
+  eventhub:
+    name: <event hub name>
+    connection: "<event hub connection string>"
+
+recommendation-service:
+  fullnameOverride: recommendation-service
+  kafka:
+    enabled: true
+  eventhub:
+    name: <event hub name> 
+    connection: "<event hub connection string>"
+
+user-service:
+  fullnameOverride: user-service
+  kafka:
+    enabled: true
+  eventhub:
+    name: <event hub name> 
+    connection: "<event hub connection string>"
+edge-service:
+  fullnameOverride: edge-service
+
+prometheus:
+  enabled: true
+  fullnameOverride: prometheus
+  nameOverride: prometheus
+  server:
+    resources:
+      requests:
+        memory: 150Mi
+    persistentVolume:
+      enabled: false
+  alertmanager:
+    enabled: false
+  pushgateway:
+    enabled: false
+
+grafana:
+  enabled: true
+  adminPassword: password
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://social-network-prometheus-server
+        isDefault: true
+        access: proxy
+      - name: Users
+        type: postgres
+        url: user-db
+        database: postgres
+        user: postgres
+        secureJsonData:
+          password: "example"
+        jsonData:
+          sslmode: "disable"
+          maxOpenConns: 0
+          maxIdleConns: 2
+          connMaxLifetime: 14400
+          postgresVersion: 1000
+          timescaledb: false
+      - name: Friends
+        type: postgres
+        url: friend-db
+        database: postgres
+        user: postgres
+        secureJsonData:
+          password: "example"
+        jsonData:
+          sslmode: "disable"
+          maxOpenConns: 0
+          maxIdleConns: 2
+          connMaxLifetime: 14400
+          postgresVersion: 1000
+          timescaledb: false
+  dashboardsConfigMaps:
+    spring: social-network-grafana-dashboard-spring
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'spring'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/spring
+  grafana.ini:
+    users:
+      default_theme: "light"
