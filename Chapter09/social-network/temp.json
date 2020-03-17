@@ -1,0 +1,18 @@
+{
+  "apiVersion": "v1",
+  "kind": "Namespace",
+  "metadata": {
+    "creationTimestamp": "2020-02-16T23:30:39Z",
+    "deletionTimestamp": "2020-02-16T23:50:20Z",
+    "name": "social-network",
+    "resourceVersion": "2046204",
+    "selfLink": "/api/v1/namespaces/social-network",
+    "uid": "05add87d-e340-4f34-8523-ec43f9f8fbe3"
+  },
+  "spec": {
+    "finalizers": []
+  },
+  "status": {
+    "phase": "Terminating"
+  }
+}

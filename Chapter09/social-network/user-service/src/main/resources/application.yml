@@ -1,0 +1,141 @@
+spring:
+  cloud:
+    stream:
+      bindings:
+        output:
+          binder: kafka
+          destination: user
+          contentType: 'application/json'
+          group: user-group
+          producer:
+            requiredGroups: user-group
+  profiles:
+    active: development
+server:
+  port: ${PORT:${SERVER_PORT:8120}}
+logging:
+  level:
+    root: INFO
+    kafka.*: WARN
+    org.springframework.*: INFO
+    org.neo4j.*: INFO
+    org.apache.kafka.*: WARN
+    liquibase.integration.spring.SpringLiquibase: ERROR
+---
+postgres.port: 5432
+postgres.host: localhost
+postgres.url: jdbc:postgresql://${postgres.host:localhost}:${postgres.port}/
+postgres.database-name: postgres
+spring:
+  profiles: development
+  datasource:
+    url: ${postgres.url}
+    data-username: postgres
+    data-password: example
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    url: ${postgres.url}
+    user: postgres
+    password: example
+  cloud:
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+---
+postgres.port: 5432
+postgres.host: user-db
+postgres.url: jdbc:postgresql://${postgres.host:localhost}:${postgres.port}/
+postgres.database-name: postgres
+spring:
+  profiles: docker
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: kafka
+          defaultBrokerPort: 29092
+          zkNodes: zookeeper
+          defaultZkPort: 32181
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+  datasource:
+    url: ${postgres.url}
+    data-username: postgres
+    data-password: example
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    url: ${postgres.url}
+    user: postgres
+    password: example
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://discovery-service:8761/eureka/
+---
+postgres.port: 5432
+postgres.host: user-db
+postgres.database-name: postgres
+postgres.url: jdbc:postgresql://${postgres.host:localhost}:${postgres.port}/${postgres.database-name}
+postgres.password: example
+postgres.username: postgres
+prometheus.push.enabled: false
+spring:
+  profiles: kubernetes
+  cloud:
+    kubernetes.discovery.enabled: true
+    kubernetes.ribbon.enabled: true
+    kubernetes.enabled: true
+    stream:
+      kafka:
+        binder:
+          brokers: "PLAINTEXT://social-network-kafka:9092"
+  datasource:
+    url: ${postgres.url}
+    data-username: ${postgres.username}
+    data-password: ${postgres.password}
+    driver-class-name: org.postgresql.Driver
+    xa:
+      data-source-class-name: org.postgresql.xa.PGXADataSource
+  liquibase:
+    url: ${postgres.url}
+    user: ${postgres.username}
+    password: ${postgres.password}
+ribbon.eureka.enabled: false
+eureka.client.enabled: false
+---
+postgres.port: 5432
+postgres.host: localhost
+postgres.url: ${spring.datasource.url}
+postgres.database-name: postgres
+prometheus.enabled: false
+spring:
+  profiles: test
+  cloud:
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+  datasource:
+    url: jdbc:postgresql://${postgres.host:localhost}:${postgres.port}
+    data-username: postgres
+    data-password: password
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    url: ${spring.datasource.url}
+    user: postgres
+    password: password
+eureka:
+  client:
+    enabled: false

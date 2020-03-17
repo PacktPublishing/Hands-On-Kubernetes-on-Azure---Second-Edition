@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        app: oauth2-proxy
+    spec:
+      containers:
+      - env:
+          - name: OAUTH2_PROXY_PROVIDER
+            value: azure
+          - name: OAUTH2_PROXY_AZURE_TENANT
+            value: <paste in directory ID>
+          - name: OAUTH2_PROXY_CLIENT_ID
+            value: <paste in application ID>
+          - name: OAUTH2_PROXY_CLIENT_SECRET
+            value: <paste in client secret>
+          - name: OAUTH2_PROXY_COOKIE_SECRET
+            value: somethingveryrandom
+          - name: OAUTH2_PROXY_HTTP_ADDRESS
+            value: "0.0.0.0:4180"
+          - name: OAUTH2_PROXY_UPSTREAM
+            value: "https://<your DNS prefix>.<your azure region>.cloudapp.azure.com/"
+          - name: OAUTH2_PROXY_EMAIL_DOMAINS
+            value: '*'
+        image: quay.io/pusher/oauth2_proxy:latest
+        imagePullPolicy: IfNotPresent
+        name: oauth2-proxy
+        ports:
+        - containerPort: 4180
+          protocol: TCP

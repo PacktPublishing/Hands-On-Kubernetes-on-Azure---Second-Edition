@@ -1,0 +1,12 @@
+dependencies:
+- name: kafka
+  repository: https://kubernetes-charts-incubator.storage.googleapis.com
+  version: 0.13.3
+- name: prometheus
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 8.3.0
+- name: grafana
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 1.21.2
+digest: sha256:7dd5856caf2ab403ad9116504554e6c39df1178c1dbb51388a79e28723c410ce
+generated: "2020-02-16T23:09:37.870674396Z"

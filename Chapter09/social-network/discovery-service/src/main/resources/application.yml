@@ -1,0 +1,44 @@
+spring:
+  profiles:
+    active: development
+server:
+  port: 8761
+logging:
+  level:
+    root: INFO
+    kafka.*: WARN
+    org.springframework.*: INFO
+    org.neo4j.*: INFO
+    com.memorynotfound: DEBUG
+    org.apache.kafka.*: ERROR
+---
+spring:
+  profiles: development
+  cloud:
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+eureka:
+  instance:
+    preferIpAddress: true
+---
+spring:
+  profiles: docker
+  cloud:
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+eureka:
+  instance:
+    preferIpAddress: true
+---
+spring:
+  profiles: test
+  cloud:
+    kubernetes.discovery.enabled: false
+    kubernetes.ribbon.enabled: false
+    kubernetes.enabled: false
+prometheus.enabled: false
+eureka:
+  client:
+    enabled: false
